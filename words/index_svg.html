@@ -1,0 +1,280 @@
+<!doctype html>
+<html>
+  <head>
+    <title>WebGL - Simple triangle</title>
+  </head>
+  <style type="text/css">
+  body{background:rgba(10,40,30,1);}
+  #game-surface{position:absolute;width:100%;height:100%;z-index:0}
+    #svg{position:absolute;z-index:13}
+  @font-face{
+  font-family:'coper';
+    src:url('../typo/typo/CooperHewitt-Medium.otf');
+}
+@font-face{
+  font-family:'sans';
+    src:url('../typo/typo/PublicSans-Regular.otf');
+}
+@font-face{
+  font-family:'ostrich';
+    src:url('../typo/typo/OstrichSansRounded-Medium.otf');
+}
+@font-face{
+  font-family:'DoHyeon';
+    src:url('../typo/typo/DoHyeon-Regular.ttf') format('truetype');
+}
+@font-face{
+  font-family:'FjallaOne';
+    src:url('../typo/typo/FjallaOne-Regular.ttf') format('truetype');
+}
+.dohyein{font-family:"DoHyeon"}
+.FjallaOne{font-family:"FjallaOne";}
+
+.style{
+	font-family: ostrich;
+	font-size  : 124px;
+	stroke     : #000;
+	fill       : #fff;
+
+}
+.svg-filter{
+	-webkit-filter: url("#filter");
+  filter: url("#filter");
+}
+.svg-filter2{
+	-webkit-filter: url("#filter2");
+  filter: url("#filter2");
+}
+.svg-noise{
+	-webkit-filter: url("#noise");
+  filter: url("#noise");
+}
+
+  h1{
+    font-size:8em;
+  }
+  h2{
+    font-size:6em;
+  }
+  #h3{font-size:4em; color:#fff;}
+
+  .stroke_white{-webkit-text-stroke: 1px #333;}
+  .just_stroke{-webkit-text-stroke: 3px black;color:rgba(0,0,0,0) }
+	.fill{color:rgba(65, 86, 117, 0.6);}
+  .stroke{-webkit-text-stroke: 1px white;}
+
+  /* 
+  animate svg via css
+  img.grey {
+  -webkit-filter: url(#gray-filter);
+  filter: url(#gray-filter);
+  opacity: 1;
+  transition: filter 2s;
+  -webkit-transition: filter 2s;
+}
+*/
+h2:hover{
+  -webkit-filter: url(#filter);
+  filter: url(#filter);
+  opacity: 1;
+  transition: filter 2s;
+  -webkit-transition: filter 2s;
+}
+#svga:hover{
+  -webkit-filter: url(#filter);
+  filter: url(#filter);
+  opacity: 1;
+  transition: filter 2s;
+  -webkit-transition: filter 2s;
+}
+#canvas{
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+#svga{
+position:absolute;z-index:1;
+width:100%;
+height:100%;
+}
+
+#back{
+position:absolute;z-index:0;
+top:0;
+left:0;
+width:100vw;
+height:100vh;
+}
+
+.svg-text-style{
+    font-family: coper;
+	  font-size  : 4em;
+		stroke     : #00ff00;
+		fill       : #0000ff;
+}
+
+.coper{
+    font-family: coper;
+	  font-size  : 5em;
+		stroke     :  rgba(200,200,200,0.2);
+    fill :#fff;
+    color:#fafafa;
+		
+}
+.sans{
+    font-family: sans;
+	  font-size  : 3em;
+		stroke     : rgba(200,200,200,0.2);
+		fill       : #fff;
+    color:#fafafa;
+
+}
+ </style>
+  </head>
+    <body onload="">
+   
+      <br />
+     
+        <svg  xmlns="http://www.w3.org/2000/svg"id="svga"> 
+					
+					<text x="10"  y="100"
+						class="svg-text-style" >
+					  Grammar basic generator
+          </text>
+        </svg>
+      
+     
+          
+      <div id="wrap" style="z-index:1;position:absolute;top:20vh;left:10vw;width:80vw;padding:2em;border:1px solid #fff;display:flex;flex-direction: column;">
+         <h2 id="h2" class="coper"> Yahlla yalla ramala</h2>
+         <h3 id="h3" class="h1 dohyein">juas</h1>
+         <h4 id="h4" class="sans ">juas</h1>
+      </div>  
+  
+      <svg  xmlns="http://www.w3.org/2000/svg" id="back"> 
+					
+        <rect id="backa"  width="100%" height="100%" />
+     
+        <rect filter="url(#I)" width="100%" height="100%" />
+        <rect filter="url(#J) " width="100%" height="100%" />
+       
+      </svg> 
+      
+      <svg xmlns="http://www.w3.org/2000/svg" version="1.1" class="svg-filters">
+        <defs>
+          <filter id="filter">
+          <feTurbulence type="fractalNoise" baseFrequency="0.26 0.039" numOctaves="1" result="warp"> 
+          <animate id="fractalnoiseAnimate" attributeName="baseFrequency" values="0.00,0.26;0.039" from="0" to="100" dur="10s" repeatCount="indefinite"></animate>
+          </feTurbulence>
+          <feDisplacementMap xChannelSelector="R" yChannelSelector="G" scale="1" in="SourceGraphic" in2="warpOffset" />
+          </filter>
+          <filter id="filter2">
+          <feTurbulence type="fractalNoise" baseFrequency="0.26 0.039" numOctaves="1" result="warp"></feTurbulence>
+          <feDisplacementMap xChannelSelector="R" yChannelSelector="G" scale="9" in="SourceGraphic" in2="warpOffset" />
+          </filter>
+
+          <filter width="100%" height="100%" x="0%" y="0%" id="noise">
+            <feTurbulence type="turbulence" baseFrequency="0.0547184" id="turbulence" numOctaves="1" result="turbulence" seed="5">
+              <animate id="noiseAnimate" attributeName="baseFrequency" values="0;.1;0,0" from="0" to="100" dur="10s" repeatCount="indefinite"></animate>
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="1" xChannelSelector="R" yChannelSelector="R"></feDisplacementMap>
+            </filter>
+            <filter id = "I">
+
+              <feSpecularLighting specularExponent="25" lighting-color="white">
+       
+                     <fePointLight x="400" y="100" z="100"/>
+       
+              </feSpecularLighting>
+       
+       </filter>
+       <filter id = "J">
+
+        <feSpecularLighting specularExponent="125" lighting-color="green">
+ 
+               <fePointLight x="400" y="200" z="300"/>
+ 
+        </feSpecularLighting>
+ 
+ </filter>
+    </defs>
+        </svg>
+    </body>
+
+    <script src="rita-web.js" ></script>
+
+
+
+  <script>
+
+    var elem = document.getElementById("backa");
+    let tick = 0;
+    var interval = setInterval(update,200);
+   // var int = requestAnimationFrame();
+    function update()
+    {
+      tick++;
+      write();
+      let r = 25;
+      let g = Math.sin(tick/100)*100;
+      let b = 10;
+      elem.setAttribute("fill", "rgb("+r+","+g+","+b+")");
+      if ( tick > 60 ) { tick = 0;}
+    }
+
+  //  var int = requestAnimationFrame(update)
+
+
+var txt = "";
+	
+json = `{
+      "$start" : "$f1 | $f2 | $f3", 
+      "$pre" : "a | ante | cabe | con | contra | de | desde | en | entre | para | por | si | segun | cuan",
+      "$art" : "al | la | las | lo | los | le | les | vos | su",
+      "$ver" : "abrir | despertar | contener | sanar | olvidar | recupera | obtener | conseguir | florecer | contar | guardar | ver | mirar | mira | estudia | lee",
+      "$adj" : "verde | azul | divertido | alegre | algarabia | marejada | recogido | fantastico | ocaso | grandioso | espectacular | maravilla | pulido | abierto | reluciente",
+      "$nom" : "molusco | mar | llaves | candado | arena | reloj | minutero | piedra | zapato | arbol | encina | pajaro | halcon | luminescencia | paco | tierra",
+      "$f1": "$adj $ver",
+      "$f2": "$pre $art $nom $adj",
+      "$f3": "$ver $adj"
+    }`;
+    
+    var palabras = "";
+    grammar = RiTa.grammar(json);  
+    
+
+    function write()
+    {
+  
+    var expanded = grammar.expand();
+    
+    txt = " " + txt + " "+ expanded;
+   // var elem = document.getElementById("h1");
+   // elem.innerHTML = expanded;
+
+    let elem1 = document.getElementById("h2");
+    let elem2 = document.getElementById("h3");
+    let elem3 = document.getElementById("h4");
+
+    escribir = palabras.substr(0,tick);
+
+    if (tick == 1 ){
+    elem2.innerHTML =  grammar.expand();
+    elem3.innerHTML =  grammar.expand();
+    grammar = RiTa.grammar(json);  
+    
+    }
+
+    palabras = "" + elem2.innerHTML + " " + elem3.innerHTML + " ";
+    
+    elem1.innerHTML = palabras.substr(0,tick)+ " | ";
+   // console.log(palabras,tick,palabras.substr(0,tick));
+    expanded = 0;
+  }
+
+  </script>
+
+
+</html>

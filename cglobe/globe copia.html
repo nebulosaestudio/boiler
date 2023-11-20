@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl-camera cinematic</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #f0f0f0;
+				margin: 0px;
+				overflow: hidden;
+			}
+			#info {
+				position: absolute;
+				top: 10px;
+				width: 100%;
+				text-align: center;
+			}
+		</style>
+	</head>
+	<body>
+
+		<div id="info">
+			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - interactive cubes
+		</div>
+
+		<script src="./three.min.js"></script>
+		
+		<script src="./tween.min.js"></script>
+
+		<script src="./BokehShader2.js"></script>
+		<script src="./CinematicCamera.js"></script>
+
+		<script src="./stats.min.js"></script>
+		<script src='./dat.gui.min.js'></script>
+
+		<script>
+			var object,atm;
+			var effectController,cx,cy,cz ;
+			var camera, scene, raycaster, renderer, stats;
+			var rotation = false;
+			var mouse = new THREE.Vector2(), INTERSECTED;
+			var radius = 80, theta = 0;
+			cx = 1;
+			cy = 9;
+			cz = 110;
+
+			var r = { rx : 0, zc : 4};  
+			var d = { x:1,y:9,z:110};
+
+			var anim01 = new TWEEN.Tween( d )
+					.to( { x:1 , y:0 , z:50 } , 3000 )
+					.easing ( TWEEN.Easing.Cubic.In )
+					.delay(2000)
+					.onUpdate( function(){
+						camera.position.set(d.x,d.y,d.z);
+						//object.rotation.x += 0.006;
+						console.log(d.y);
+					}).onComplete(function(){rotation = true;});
+			var anim00 = new TWEEN.Tween( r )
+					.to( { rx:2 , zc:1} , 6000 )
+					.easing ( TWEEN.Easing.Cubic.In )
+					.onUpdate( function(){
+						object.rotation.x += 0.003;
+						
+				});
+
+			
+			init();
+			animate();
+
+
+			function init() {
+
+				camera = new THREE.CinematicCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
+				camera.setLens( 2 );
+				camera.position.set( 1, 9, 110 );
+				camera.zoom = 2;
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0x130913);
+
+				scene.add( new THREE.AmbientLight( 0xffffff, 0.3 ) );
+
+			scene.fog = new THREE.FogExp2( 0xf0fff0, 0.045 );
+
+				var light = new THREE.DirectionalLight( 0xffffff, 0.35 );
+				light.position.set( 1, 1, 1 ).normalize();
+				scene.add( light );
+
+				var geometry = new THREE.SphereBufferGeometry( 10, 64, 64 );
+
+				var atmosfera = new THREE.SphereBufferGeometry(12,32,32);
+
+
+				var mapBump = new THREE.TextureLoader().load( "./bump.jpg" );
+				var mapNormal = new THREE.TextureLoader().load( "./normal.png" );
+				var mapColor = new THREE.TextureLoader().load( "./color.png" );
+				var mapAlpha = new THREE.TextureLoader().load("./perlin2.png");	
+
+
+
+        var material = new THREE.MeshPhongMaterial( {
+          map:mapColor,	
+          color: 0xfafafa,
+          specular: 0x222222,
+          shininess: 25,
+          normalMap: mapNormal,
+       	  side: THREE.DoubleSide,
+          transparent:true
+
+        } );
+
+        var matatm = new THREE.MeshPhongMaterial({
+        	color:0x306090,
+        	map:mapColor,
+        	transparent:true,
+        	opacity:0.2
+
+        });
+  
+  		atm = new THREE.Mesh(atmosfera,matatm);
+
+  		//scene.add(atm);
+
+		object = new THREE.Mesh( geometry,material);
+
+		scene.add( object );
+
+
+				object.rotation.y = 80.3;
+				object.rotation.x -= 0.6;
+				camera.position.x = cx;
+				camera.position.y = cy;
+				camera.position.z = cz;
+
+
+
+				//raycaster = new THREE.Raycaster();
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+
+				stats = new Stats();
+				document.body.appendChild( stats.dom );
+
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+				effectController = {
+
+					rx : 0,
+					ry : 0,
+					rz : 0,
+					camerax : 1,
+					cameray : 6,
+					cameraz : 14,
+					focalLength: 15,
+					// jsDepthCalculation: true,
+					// shaderFocus: false,
+					//
+					fstop: 2.8,
+					// maxblur: 1.0,
+					//
+					showFocus: false,
+					focalDepth: 30,
+					// manualdof: false,
+					// vignetting: false,
+					// depthblur: false,
+					//
+					// threshold: 0.5,
+					// gain: 2.0,
+					// bias: 0.5,
+					// fringe: 0.7,
+					//
+					// focalLength: 35,
+					// noise: true,
+					// pentagon: false,
+					//
+					// dithering: 0.0001
+
+				};
+
+				var updateCam = function ( ) {
+
+					cx = effectController.camerax;
+					cy = effectController.cameray;
+					cz = effectController.cameraz;
+				} 
+
+				var matChanger = function ( ) {
+
+					for ( var e in effectController ) {
+
+						if ( e in camera.postprocessing.bokeh_uniforms ) {
+
+							camera.postprocessing.bokeh_uniforms[ e ].value = effectController[ e ];
+
+						}
+
+					}
+
+					camera.postprocessing.bokeh_uniforms[ 'znear' ].value = camera.near;
+					camera.postprocessing.bokeh_uniforms[ 'zfar' ].value = camera.far;
+					camera.setLens( effectController.focalLength, camera.frameHeight, effectController.fstop, camera.coc );
+					effectController[ 'focalDepth' ] = camera.postprocessing.bokeh_uniforms[ 'focalDepth' ].value;
+
+				};
+
+				//
+
+				var gui = new dat.GUI();
+
+ 				gui.add( effectController, 'rx' ,-100,100, 1).onChange(updateCam);
+				gui.add( effectController, 'ry' ,-100,100, 1).onChange(updateCam);
+				gui.add( effectController, 'rz' ,-100,100, 1).onChange(updateCam);
+
+		        gui.add( effectController, 'camerax' ,-100,100, 1).onChange(updateCam);
+				gui.add( effectController, 'cameray' ,-100,100, 1).onChange(updateCam);
+				gui.add( effectController, 'cameraz' ,-1000,1000, 1).onChange(updateCam);
+
+				gui.add( effectController, 'focalLength', 1, 135, 0.01 ).onChange( matChanger );
+				gui.add( effectController, 'fstop', 1.8, 22, 0.01 ).onChange( matChanger );
+				gui.add( effectController, 'focalDepth', 0.1, 100, 0.001 ).onChange( matChanger );
+				gui.add( effectController, 'showFocus', true ).onChange( matChanger );
+
+				updateCam();	
+				matChanger();
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+				//animaciones.start()
+				anim01.start();
+				anim00.start();
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function onDocumentMouseMove( event ) {
+
+				event.preventDefault();
+
+				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+				mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate, renderer.domElement );
+
+				render();
+				stats.update();
+
+			}
+
+
+			function render() {
+
+				 TWEEN.update();
+				theta += 0.001;
+				//camera.position.x
+				//camera.position.x = radius * Math.sin( THREE.Math.degToRad( theta ) );
+				//camera.position.y = radius * Math.sin( THREE.Math.degToRad( theta ) );
+				//camera.position.z = radius * Math.cos( THREE.Math.degToRad( theta ) );
+				
+				//camera.lookAt( scene.position );
+
+				if ( rotation ) {object.rotation.y += 0.01}
+				camera.updateMatrixWorld();
+
+				// find intersections
+/*
+				raycaster.setFromCamera( mouse, camera );
+
+				var intersects = raycaster.intersectObjects( scene.children );
+
+				if ( intersects.length > 0 ) {
+
+					var targetDistance = intersects[ 0 ].distance;
+
+					camera.focusAt( targetDistance ); // using Cinematic camera focusAt method
+
+					if ( INTERSECTED != intersects[ 0 ].object ) {
+
+						if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+
+						INTERSECTED = intersects[ 0 ].object;
+						INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+						INTERSECTED.material.emissive.setHex( 0xff0000 );
+
+					}
+
+				} else {
+
+					if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+
+					INTERSECTED = null;
+
+				}
+
+				//
+*/
+				if ( camera.postprocessing.enabled ) {
+
+					camera.renderCinematic( scene, renderer );
+
+				} else {
+
+					scene.overrideMaterial = null;
+
+					renderer.clear();
+					renderer.render( scene, camera );
+
+				}
+
+			}
+
+		</script>
+
+	</body>
+</html>

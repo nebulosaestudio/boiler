@@ -1,0 +1,176 @@
+
+<!DOCTYPE HTML>
+<html lang="en">
+	<head>
+		<title>particulas</title>
+		<meta charset="utf-8">
+	</head>
+
+
+		<style type="text/css">
+			body {
+				background-color: #000000;
+				margin: 0px;
+				overflow: hidden;
+			}
+			.canvas{position:absolute;}
+			.particula{width:10px;height:10px;display:block;background:#239a2f;position:absolute;border-radius:50%;}
+			.fuerza{width:23px;height:23px;display:block;background:#9a1444;position:absolute;}
+			#warp{background:#0a3a1a;}
+		</style>
+
+
+		<body onload="init();">
+			<script type="text/javascript" src="requestFrame.js"></script>
+			<script type="text/javascript" src="Vector2.js"></script>
+			<script type="text/javascript" src="Particula.js"></script>
+			<script type="text/javascript" src="Fuerza.js"></script>
+			<script type="text/javascript" src="PhysicsParticle.js"></script>
+			<script type="text/javascript" src="jquery.js"></script>			
+
+			<script type="text/javascript">
+
+			
+			//alert(4+5+"3");
+
+				
+				var SCREEN_WIDTH = window.innerWidth,
+				SCREEN_HEIGHT = window.innerHeight,
+				particles = [],
+				fuerzas = [],
+				MAX_PARTICLES =620;
+
+				var id = 0;
+				var ps;
+
+				var p0x = SCREEN_WIDTH / 2 ;
+				var p0y = SCREEN_HEIGHT / 2 ;
+
+				var t;
+
+			
+
+				function init()
+				{
+					
+					setWarp();
+					//console.log("SCREEN"+warp.style)
+
+					//crearParticulas();
+					//crearFuerzas();
+				
+					crearSistemaParticulas();
+					initLoop();
+					//console.log("init");
+			
+			/*
+			var canvas = document.createElement('canvas');
+			canvas.setAttribute('id','canvas');
+			canvas.setAttribute('width',200);
+			canvas.setAttribute('height',200);
+			document.getElementById("warp").appendChild(canvas);
+			var ctx = document.getElementById('canvas').getContext('2d');
+
+ 			ctx.beginPath();
+		        ctx.moveTo(0, 0);
+		        ctx.lineTo(100,100);
+     		        ctx.lineWidth = 10;
+			ctx.strokeStyle = 'black';
+		        ctx.stroke();
+			*/
+				}
+			function handleOver(e)
+			{
+				var id = e.target.id.substr(1);
+				var p = ps.particles[id];
+				//console.log("e:"+p+" - "+id);
+				p.over = true;
+				//p.grow(e);
+			}
+			
+			function handleOut(e)
+			{
+				var id = e.target.id.substr(1);
+				var p = ps.particles[id];
+				p.over = false;
+			}
+
+
+				function initLoop()
+				{
+					
+					  requestAnimFrame(initLoop);
+					  ps.update();
+					
+				}
+
+				function crearSistemaParticulas()
+				{
+					ps = new PhysicsParticle(p0x,p0y);
+					//prueba de fuerza ext
+					var wind = new Vector2(0.2,-0);
+					//ps.addForce(wind);
+					ps.populate();
+
+				//	crearFuerzas();		
+					
+				}
+				/*
+				function populate()
+		 		{
+					if ( id < ps.MAX_PARTICLES )
+					{	
+					ps.emit(id);
+					id++;									
+					t = setTimeout(populate,400);
+					//console.log(t);
+					}else{
+					clearTimeout(t);
+					
+					}
+				}
+				*/
+				function loop()
+				{
+
+					// ps.compararParticulas();
+					// ps.compararFuerzas();
+			
+					ps.update();
+
+				}
+				
+				function crearFuerzas()
+				{
+					var fuerza = new Fuerza(600,210);
+					fuerza.render("warp");
+					fuerzas.push(fuerza);
+				}
+
+				function crearParticulas()
+				{
+					// fuerza emisor
+					
+				//	setTimeout(next,1000);
+				}
+
+				function next()
+				{
+
+					crearParticulas();
+				}
+				
+				function setWarp()
+				{
+					var warp_style = document.getElementById("warp");
+					warp.style.width = SCREEN_WIDTH + "px";
+					warp.style.height = SCREEN_HEIGHT + "px";
+				}
+			</script>
+
+			<div id="warp">
+			</div>
+
+			<canvas id="canvas"> </canvas>
+		</body>
+	</html>

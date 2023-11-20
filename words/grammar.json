@@ -1,0 +1,15 @@
+{
+  "$start":    "$subject $verb $object",
+  "$subject":  "I | You | They",
+  "$object":   "coffee | bread | milk",
+  "$verb":     "want | hate | like | love"
+}
+
+{
+  "$start": "$pre | $art $ver $adj $nom",
+  "$pre" : "a | ante | cabe | con | contra | de | desde | en | entre | para | por | si | segun | cuan",
+  "$art" : "al | la | las | lo | los | le | les | vos | su",
+  "$ver" : "abrir | obtener | conseguir | florecer | contar | guardar | ver | mirar | mira | estudia | lee",
+  "$adj" : "verde | azul | grandioso | espectacular | maravilla | pulido | abierto | reluciente",
+  "$nom" : "piedra | zapato | arbol | encina | pajaro | halcon | luminescencia | paco | tierra"
+}

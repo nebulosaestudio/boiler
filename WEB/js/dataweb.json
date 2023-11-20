@@ -1,0 +1,33 @@
+{
+	"web.cha.design" : {
+			"pag.index" : {
+								"ABOUT" : "design multi device oriented ( desktop, movile, ioT ( alexa,watch,)) emotional design",
+								"WORKS" : {
+											 "logo&idvis" : "logos_portfolio.htm",
+											"identidad_visual" : "idvis_portfolio.htm",
+											"interactive.motion_graphics.web.movil":"fds",
+											"exhibitions/installations":"portfolio",
+											"ilustración":"ekualizeros.htm" ,
+											"implementación.SOFTWARE.GITHUB.": "url"
+									}	,
+								"METODOLOGIA" : "MET.HTM",
+								"CON.TACT" : "+34111222333"
+			}
+	},
+
+	"web.bees" :  {
+			"pag.main" : {
+			"wrp.banner" : {
+								"#warp_name" : "file_url",
+								"back" : "back.jpg",
+								"logo" : "logo",
+								"txt.h1" :"text string",
+								"events" : {
+									"onComplete" : "next()",
+									"onLoad" : "shows()"
+								}
+			},
+			"wrp.main" : "none"
+			}
+	}
+}

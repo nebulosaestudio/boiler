@@ -1,0 +1,44 @@
+{
+	"folders": [
+		{
+			"name": "WEB",
+			"path": ".."
+		},
+		{
+			"name": "dauda",
+			"path": "../../../../../../Applications/MAMP/htdocs/nebulosa/dauda"
+		},
+		{
+			"name": "nebulosa",
+			"path": "../../../../../../Applications/MAMP/htdocs/nebulosa"
+		},
+		{
+			"name": "cha.desgin - WEB",
+			"path": "../../../../../../Applications/MAMP/htdocs/cha.desgin - WEB"
+		},
+		{
+			"name": "grav-cienciascomputacion",
+			"path": "../../../../../../Applications/MAMP/htdocs/grav-cienciascomputacion"
+		},
+		{
+			"name": "grav-eLearning",
+			"path": "../../../../../../Applications/MAMP/htdocs/grav-eLearning"
+		},
+		{
+			"name": "grav-juegos",
+			"path": "../../../../../../Applications/MAMP/htdocs/grav-juegos"
+		},
+		{
+			"name": "grav-newmedia",
+			"path": "../../../../../../Applications/MAMP/htdocs/grav-newmedia"
+		},
+		{
+			"name": "grav-videojuegos",
+			"path": "../../../../../../Applications/MAMP/htdocs/grav-videojuegos"
+		},
+		{
+			"name": "grav-WEB",
+			"path": "../../../../../../Applications/MAMP/htdocs/grav-WEB"
+		}
+	]
+}

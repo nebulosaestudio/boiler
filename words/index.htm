@@ -1,0 +1,54 @@
+<html>
+    <head>
+		<title>. drawing code .</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	
+</head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://unpkg.com/rita"></script>
+ 
+  <div id="content" width=200 height=200>
+
+  </div>
+<h1 class="line"></h1>
+<h1 class="line"></h1>
+<h1 class="line"></h1>
+<h1 class="line"></h1>
+<h1 class="line"></h1>
+
+  <script>
+
+ 	
+    json = `{
+      "$start" : "$f2 | $f3 ", 
+      "$pre" : "a | ante | cabe | con | contra | de | desde | en | entre | para | por | si | segun | cuan",
+      "$art" : "al | la | las | lo | los | le | les | vos | su",
+      "$ver" : "abrir | obtener | conseguir | florecer | contar | guardar | ver | mirar | mira | estudia | lee",
+      "$adj" : "verde | azul | grandioso | espectacular | maravilla | pulido | abierto | reluciente",
+      "$nom" : "piedra | zapato | arbol | encina | pajaro | halcon | luminescencia | paco | tierra",
+      "$f1": "( $pre | $art ) $ver $adj $nom $f2 $f3",
+      "$f2": "$art $nom  $pre $ver $adj",
+      "$f3": "$pre $adj $nom"
+    }`;
+    
+    grammar = RiTa.grammar(json);
+    
+    let expanded = grammar.expand();
+    
+    let lines = $(".line");
+    let txt ="";
+   // let haiku = expanded.split("%");
+    for (let i = 0; i < lines.length; i++) {
+     
+        let expanded = grammar.expand();
+        $(lines[i]).text(expanded);
+        txt = "";
+    }
+
+    text = expanded;
+    
+    var elem = document.getElementById("content");
+    elem.innerHTML = text;
+      </script>
+<html>

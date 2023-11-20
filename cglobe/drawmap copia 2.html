@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl-camera cinematic</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #f0f0f0;
+				margin: 0px;
+				overflow: hidden;
+				background:url('./back.jpg');
+			}
+			#info {
+				position: absolute;
+				top: 10px;
+				width: 100%;
+				text-align: center;
+			}
+			#warp{
+				position:absolute;
+				width:28%;
+				top:22%;
+				left:1em;
+			}
+			#warp_txt{
+				position:absolute;
+				background:none;
+				right:0.8em;
+				top:8em;
+				padding:4em;
+				color:rgba(12,192,12,0.9);
+			}
+			h1{font-size:3em;}
+			h2{font-size:2.2em;}
+
+			ul{float:left;display:block;background:#f0f3f5;}
+			ul li{listy-style:none;float:left;padding:6em 1em 0 1em;}
+
+			header{display:block;float:left;width:100%;background:#f0f3f5;}
+		</style>
+	</head>
+	<body>
+		<header>
+			
+  <div class="logo">
+                    <img class="navbar-brand" style="width:400px;float:left" src="./logoclick.png" alt="logo">
+                    <h3></h3>
+                </div>
+			
+
+			 <ul class="nav navbar-nav navbar-right">
+                    <!-- Home -->
+                    <li class="active"><a class="click-close" href="index.html">Inicio</a></li>
+                    <!-- About -->
+                    <li><a class="click-close" href="#about">Características</a></li>
+                    <!-- Pricing -->
+                    <li><a class="click-close" href="#pricing">Cómo funciona</a></li>
+                    <!-- Start Blogo -->
+                    <li><a class="click-close" href="blog.html">Precios </a></li> 
+                    <!-- Help -->
+                    <li><a class="click-close" href="#">Ayuda</a></li>
+                    <!-- Sign up -->
+                    <li><a class="click-close sign-up" href="#trial">Registrarse</a></li>
+                </ul>
+
+		</header>
+		<div id="warp" class="chart">
+			<canvas id="chart-area"></canvas>
+		</div>
+		<div id="warp_txt" class="txt">
+				<h1> Header light 01 </h1>
+				<h2> Head er light 0 0 2 </h2>
+		</div>
+
+		<div id="info">
+			<!-- <a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - interactive cubes-->
+		</div>
+
+		<script src="./Chart.min.js"></script>
+		<script src="./three.min.js"></script>
+		
+		<script src="./tween.min.js"></script>
+
+		<script src="./BokehShader2.js"></script>
+		<script src="./CinematicCamera.js"></script>
+
+		<script src="./stats.min.js"></script>
+		<script src='./dat.gui.min.js'></script>
+
+			<script src="./Projector.js"></script>
+		<script src="./SVGRenderer.js"></script>
+
+
+		<script>
+			var object,atm;
+			var effectController,cx,cy,cz ;
+			var camera, scene, raycaster, renderer, stats;
+			var rotation = false;
+			var mouse = new THREE.Vector2(), INTERSECTED;
+			var radius = 80, theta = 0;
+			cx = 1;
+			cy = 9;
+			cz = 14;
+
+			var r = { rx : 0, rz : 80};   //to 80.3
+			var d = { x:1,y:9,z:14};
+
+
+			var rx = 80.3
+
+			var group = new THREE.Group();
+
+
+			var anim01 = new TWEEN.Tween( d )
+					.to( { x:1 , y:-2 , z:48 } , 3000 )
+					.easing ( TWEEN.Easing.Cubic.In )
+					.delay(2000)
+					.onUpdate( function(){
+						camera.position.set(d.x,d.y,d.z);
+						//object.rotation.x += 0.006;
+					//	console.log(d.z);
+					}).onComplete(function(){rotation = true;});
+
+			var anim00 = new TWEEN.Tween( r )
+					.to( { rx:2 , rz:80.3} , 6000 )
+					.easing ( TWEEN.Easing.Cubic.In )
+					.onUpdate( function(){
+						group.rotation.x += 0.003;
+						group.rotation.y += 0.01;
+							
+						
+				});
+
+
+
+			var v =  [6,159,0.001,30,99,0.002,45,-109,0.000,42,115,0.007,4,-54,0.000,-16,-67,0.014,21,-103,0.006,-20,-64,0.004,-40,-69,0.001,32,64,0.001,28,67,0.006,8,22,0.000,-15,133,0.000,-16,20,0.000,55,42,0.006,32,-81,0.010,31,36,0.067,9,80,0.016,42,-91,0.006,19,54,0.001,21,111,0.163,-3,-51,0.001,33,119,0.150,65,21,0.002,46,49,0.015,43,77,0.043,45,130,0.018,4,119,0.006,22,59,0.002,9,-82,0.003,46,-60,0.002,-14,15,0.006,-15,-76,0.001,57,15,0.007,52,9,0.056,10,120,0.004,24,87,0.134,0,-51,0.005,-5,123,0.013,-24,-53,0.010,-28,-58,0.015,43,0,0.019,24,70,0.023,-9,33,0.012,20,73,0.037,13,104,0.034,43,41,0.012,23,78,0.095,20,-72,0.001,38,-4,0.006,0,-77,0.016,-9,-35,0.056,25,109,0.034,-13,34,0.013,61,18,0.001,58,40,0.002,34,50,0.027,49,88,0.000,48,-99,0.001,-42,176,0.002,20,86,0.156,-18,30,0.007,53,44,0.006,29,18,0.001,5,16,0.003,49,-74,0.000,48,131,0.006,14,121,0.210,63,19,0.001,40,54,0.001,36,57,0.005,16,52,0.000,50,128,0.010,39,30,0.021,54,12,0.006,16,-61,0.011,27,80,0.196,29,101,0.001,14,78,0.067,7,13,0.003,41,125,0.026,-17,23,0.002,54,27,0.010,30,29,0.001,41,142,0.003,12,124,0.024,41,43,0.014,18,98,0.004,36,117,0.195,17,33,0.003,32,109,0.051,-7,23,0.011,27,-101,0.005,45,-73,0.120,21,-83,0.000,55,-131,0.001,52,105,0.026,-40,-65,0.000,32,36,0.094,31,7,0.001,32,-109,0.001,31,120,0.191,9,124,0.037,46,-2,0.001,-2,-50,0.003,18,-13,0.001,42,28,0.016,4,99,0.008,19,-77,0.002,18,38,0.006,33,4,0.004,-5,-75,0.000,-14,51,0.001,-15,-48,0.002,57,-5,0.000,52,37,0.017,13,38,0.013,-10,-41,0.002,-11,36,0.006,-18,-71,0.003,-20,27,0.002,56,89,0.001,33,-94,0.007,44,15,0.001,43,-4,0.006,20,37,0.000,-4,27,0.006,47,8,0.075,44,-98,0.001,23,114,0.270,38,24,0.051,14,10,0.006,10,-3,0.009,47,89,0.002,-34,152,0.079,38,-121,0.062,14,25,0.001,29,5,0.001,-9,-78,0.016,20,98,0.018,-19,-39,0.003,53,0,0.046,-23,150,0.000,49,1,0.028,48,40,0.046,38,97,0.000,35,-99,0.001,16,1,0.004,53,-115,0.000,48,119,0.001,29,-85,0.000,63,39,0.001,40,26,0.002,16,40,0.002,11,120,0.002,-8,14,0.002,26,-98,0.016,-12,-47,0.001,-32,28,0.013,40,-87,0.006,36,-76,0.038,17,82,0.050,50,19,0.094,12,-70,0.001,27,108,0.076,7,49,0.003,41,105,0.000,3,46,0.006,-16,168,0.000,-21,56,0.004,51,83,0.002,50,-122,0.000,30,9,0.001,7,-62,0.001,41,-6,0.005,-17,-52,0.001,-38,-58,0.003,-6,13,0.014,45,6,0.045,60,59,0.001,41,-121,0.000,17,-3,0.000,-6,-64,0.000,-7,35,0.002,-26,-61,0.001,41,-104,0.003,51,30,0.006,32,-8,0.039,27,40,0.002,4,33,0.003,21,98,0.009,-1,122,0.001,32,-89,0.005,31,92,0.001,46,42,0.007,8,-83,0.003,22,36,0.000,19,30,0.001,-10,-64,0.002,-2,22,0.001,-5,40,0.031,69,20,0.001,37,35,0.020,-2,133,0.001,10,93,0.000,-10,36,0.008,-14,-41,0.005,-34,22,0.001,56,46,0.003,37,-108,0.001,52,49,0.003,13,10,0.016,46,91,0.001,-11,24,0.002,-34,-59,0.005,56,93,0.024,-38,-60,0.002,-30,-57,0.003,47,27,0.037,44,11,0.055,-33,-65,0.002,19,106,0.109,-23,-45,0.030,-24,34,0.001,58,45,0.001,20,-96,0.004,35,78,0.002,-38,150,0.000,34,39,0.004,15,27,0.001,10,33,0.002,47,109,0.000,-9,118,0.011,38,-93,0.004,34,-6,0.040,15,-84,0.001,49,16,0.023,25,38,0.002,2,39,0.001,1,28,0.003,16,102,0.026,6,122,0.008,68,65,0.000,49,-99,0.002,48,76,0.000,26,96,0.007,40,111,0.038,2,-70,0.000,38,125,0.004,16,-11,0.003,50,85,0.001,12,-8,0.031,63,75,0.001,-31,28,0.011,-20,-49,0.004,40,-2,0.002,36,1,0.014,35,26,0.010,-31,-55,0.004,6,-67,0.001,3,9,0.003,40,-115,0.001,39,102,0.000,54,68,0.002,50,55,0.001,30,54,0.004,26,49,0.002,60,-135,0.001,6,48,0.004,3,26,0.002,51,111,0.001,12,101,0.006,45,25,0.025,-3,13,0.002,-7,-46,0.002,30,88,0.000,-27,27,0.013,42,144,0.007,60,23,0.011,32,101,0.001,31,-114,0.003,28,40,0.001,8,-13,0.025,-30,-66,0.002,55,69,0.002,51,74,0.001,-3,115,0.011,31,63,0.001,28,-105,0.007,27,68,0.046,42,-78,0.037,22,-83,0.019,21,86,0.056,-1,14,0.000,-2,-57,0.000,-5,-45,0.007,32,-117,0.055,43,120,0.009,45,93,0.000,55,103,0.001,-2,34,0.011,-25,25,0.002,57,70,0.000,37,55,0.011,33,60,0.003,28,100,0.003,9,34,0.004,-9,24,0.002,-4,120,0.040,22,122,0.002,37,-88,0.008,8,101,0.011,46,119,0.000,43,-93,0.005,-11,124,0.014,0,41,0.003,-23,34,0.001,-5,143,0.002,47,47,0.001,43,52,0.006,24,-110,0.002,23,73,0.192,1,105,0.018,-4,-45,0.010,11,35,0.005,14,45,0.046,25,84,0.264,-13,21,0.001,58,17,0.007,37,123,0.040,34,75,0.072,-4,130,0.003,11,-12,0.021,48,-118,0.000,10,21,0.001,5,-58,0.001,1,-57,0.000,53,71,0.002,49,76,0.001,29,45,0.001,14,18,0.001,25,50,0.002,2,11,0.005,-18,-46,0.003,-19,33,0.016,49,-103,0.001,-8,-72,0.001,-12,-69,0.000,25,-97,0.018,40,83,0.002,39,-88,0.009,50,121,0.001,12,20,0.002,-7,114,0.025,14,107,0.004,-37,149,0.001,62,130,0.004,59,36,0.001,39,57,0.001,36,-99,0.001,35,54,0.005,30,-89,0.013,-8,-42,0.003,7,40,0.036,-17,34,0.006,54,32,0.015,-4,-50,0.001,30,66,0.001,26,69,0.060,7,-7,0.019,-20,34,0.012,-3,-60,0.026,-19,-44,0.004,-26,25,0.001,-27,-54,0.007,21,75,0.072,30,100,0.002,42,116,0.006,4,-53,0.000,-16,-66,0.000,21,-100,0.014,-20,-63,0.001,-40,-68,0.002,32,73,0.073,28,68,0.014,-16,13,0.001,-5,-41,0.006,55,41,0.007,32,-80,0.012,31,35,0.069,9,79,0.123,42,-90,0.007,19,53,0.001,-2,-45,0.003,65,24,0.000,46,50,0.001,43,84,0.007,45,129,0.024,4,120,0.002,22,60,0.003,9,-83,0.021,46,-63,0.003,-14,16,0.011,52,10,0.061,24,88,0.168,0,-50,0.003,34,126,0.001,-5,122,0.006,-24,-52,0.015,-28,-57,0.002,43,-1,0.023,24,71,0.011,58,83,0.001,20,74,0.102,-1,11,0.001,13,103,0.025,43,16,0.004,23,77,0.066,38,-7,0.014,0,-76,0.005,47,100,0.000,25,112,0.071,-13,33,0.005,61,17,0.003,58,37,0.002,34,47,0.023,49,87,0.001,48,-98,0.001,20,87,0.165,-33,-56,0.002,-18,35,0.004,53,43,0.005,29,17,0.000,5,15,0.002,48,132,0.001,-19,178,0.001,63,18,0.001,36,58,0.009,16,45,0.011,50,125,0.002,39,29,0.028,54,9,0.005,-55,-66,0.000,27,79,0.257,29,104,0.107,41,128,0.013,-17,22,0.000,54,28,0.008,53,95,0.000,30,30,0.019,41,141,0.017,-21,-53,0.000,64,29,0.001,41,30,0.081,18,95,0.013,36,118,0.246,17,36,0.002,32,110,0.043,-7,26,0.005,27,-102,0.000,45,-78,0.000,41,-69,0.001,21,-80,0.001,52,106,0.001,31,6,0.001,-16,49,0.007,32,-108,0.001,31,119,0.212,9,123,0.022,46,3,0.010,18,-12,0.001,6,-8,0.018,66,15,0.001,6,117,0.009,42,25,0.033,18,35,0.001,33,3,0.003,14,40,0.027,-15,-49,0.004,22,103,0.011,52,38,0.006,13,37,0.005,47,-91,0.001,-10,-40,0.011,-11,35,0.008,56,90,0.002,33,-95,0.004,44,16,0.011,43,-5,0.033,58,103,0.004,-4,28,0.005,-10,161,0.002,47,7,0.029,44,-97,0.002,-13,-44,0.003,23,113,0.122,38,21,0.003,14,-1,0.004,10,-2,0.014,47,88,0.002,38,-120,0.006,6,39,0.085,14,26,0.001,29,8,0.001,-9,-79,0.017,20,99,0.004,53,-1,0.154,49,4,0.023,48,17,0.080,40,140,0.001,38,98,0.000,35,-92,0.005,16,2,0.001,53,-112,0.002,12,-3,0.012,48,120,0.002,29,-90,0.032,40,27,0.012,16,17,0.000,-8,15,0.005,-12,-46,0.001,40,-86,0.016,39,129,0.000,17,81,0.070,50,20,0.093,12,-69,0.002,27,107,0.104,7,48,0.004,41,108,0.016,3,45,0.005,51,82,0.008,50,-125,0.001,-15,50,0.009,30,10,0.001,7,-63,0.005,41,-7,0.016,-17,-53,0.001,-6,14,0.023,30,121,0.273,23,96,0.020,45,5,0.082,60,60,0.002,-4,-41,0.009,17,0,0.001,-6,-67,0.000,28,13,0.000,-26,-60,0.001,41,-105,0.001,-8,132,0.002,51,29,0.006,32,1,0.001,27,39,0.002,4,34,0.002,21,97,0.041,-1,121,0.003,-3,-42,0.002,32,-88,0.005,46,31,0.055,8,-82,0.014,19,29,0.001,-2,27,0.002,-5,39,0.025,69,19,0.001,57,105,0.000,37,30,0.019,-2,134,0.001,-10,33,0.007,-14,-40,0.008,-34,27,0.004,56,47,0.004,52,50,0.007,13,9,0.031,47,-55,0.001,9,6,0.013,46,92,0.000,-11,23,0.002,-14,-57,0.000,-4,134,0.001,-34,-58,0.003,56,94,0.004,-38,-63,0.001,47,26,0.016,44,12,0.056,19,105,0.009,-8,142,0.000,-24,35,0.002,58,46,0.002,38,49,0.031,35,77,0.009,37,98,0.001,34,40,0.004,15,26,0.001,10,34,0.004,47,124,0.048,-33,30,0.000,38,-92,0.009,-8,139,0.000,15,-85,0.004,49,15,0.023,2,40,0.001,1,27,0.001,16,103,0.058,-22,34,0.001,49,-96,0.002,26,93,0.132,25,-106,0.001,40,112,0.040,2,-73,0.001,1,12,0.003,38,126,0.118,16,-10,0.002,50,86,0.000,12,-7,0.012,-31,27,0.001,40,-1,0.004,36,2,0.029,35,25,0.007,-7,150,0.000,-31,-52,0.005,6,-66,0.000,45,-120,0.000,39,101,0.015,54,65,0.002,50,56,0.001,30,59,0.004,26,50,0.001,6,45,0.002,3,25,0.002,17,-66,0.004,-21,19,0.000,51,110,0.001,12,102,0.019,45,28,0.033,-25,-64,0.004,-3,16,0.001,-7,-47,0.003,45,-87,0.004,42,141,0.010,60,24,0.005,-29,-67,0.000,17,-4,0.000,32,102,0.002,31,-115,0.010,28,41,0.001,8,-12,0.027,55,68,0.001,51,73,0.001,31,62,0.005,28,-104,0.001,27,67,0.005,42,-81,0.012,4,-2,0.002,22,-82,0.023,21,85,0.048,-1,13,0.001,-39,-62,0.008,-2,-56,0.000,-5,-46,0.003,32,-116,0.037,46,75,0.003,43,119,0.009,55,102,0.001,-8,-76,0.002,-25,24,0.002,5,9,0.027,57,69,0.000,37,66,0.004,33,59,0.002,28,101,0.003,9,33,0.005,-15,39,0.007,37,-89,0.009,46,120,0.001,43,-94,0.003,-11,123,0.001,0,42,0.001,-23,33,0.001,-5,142,0.002,47,46,0.001,23,72,0.029,-4,-44,0.011,11,34,0.004,-9,-41,0.002,25,83,0.311,-13,28,0.012,58,18,0.002,35,121,0.005,37,118,0.160,34,76,0.015,-4,131,0.001,49,94,0.000,11,-13,0.006,48,-117,0.001,10,22,0.001,-32,153,0.003,53,50,0.037,49,75,0.001,29,48,0.029,5,122,0.005,25,49,0.002,-2,105,0.004,2,12,0.005,-19,36,0.003,68,30,0.001,49,-100,0.001,48,105,0.001,26,129,0.002,-12,-68,0.000,40,84,0.002,39,-89,0.011,36,15,0.011,50,122,0.004,12,21,0.002,-7,113,0.027,18,123,0.002,59,35,0.002,39,56,0.000,36,-98,0.001,35,53,0.008,30,-88,0.020,-8,-41,0.006,7,39,0.066,-17,33,0.006,54,29,0.018,-55,-68,0.000,30,23,0.000,26,70,0.028,7,-8,0.016,6,73,0.000,22,98,0.012,-3,-61,0.000,-26,26,0.012,-27,-55,0.008,45,64,0.000,60,5,0.000,41,65,0.003,21,70,0.021,30,97,0.001,42,113,0.002,4,-52,0.002,-16,-65,0.000,21,-101,0.042,-20,-62,0.000,-41,-62,0.000,32,74,0.140,28,69,0.045,8,24,0.001,-16,14,0.003,55,40,0.012,31,34,0.003,-15,26,0.001,21,121,0.001,33,121,0.107,-6,151,0.002,65,23,0.001,43,83,0.008,45,132,0.031,22,57,0.001,6,2,0.069,9,-80,0.001,46,-62,0.001,-14,13,0.001,-15,-74,0.002,57,17,0.003,52,11,0.050,-43,172,0.001,24,81,0.059,-5,121,0.025,-24,-59,0.000,-28,-56,0.003,43,-2,0.044,24,72,0.038,58,84,0.000,20,75,0.092,-28,23,0.001,23,108,0.066,38,-6,0.013,14,-92,0.015,47,99,0.000,25,111,0.073,58,38,0.002,-46,169,0.000,34,48,0.033,49,90,0.000,48,-97,0.001,-18,36,0.010,53,38,0.009,44,113,0.000,5,26,0.001,48,125,0.020,63,17,0.001,40,56,0.000,36,59,0.014,35,8,0.017,16,46,0.002,50,126,0.005,39,28,0.032,54,10,0.027,27,78,0.189,29,103,0.030,41,127,0.032,-17,21,0.000,54,25,0.013,53,106,0.001,30,35,0.005,6,37,0.015,64,30,0.000,41,29,0.149,18,96,0.058,36,119,0.183,17,35,0.003,32,111,0.054,-7,25,0.013,45,-79,0.002,41,-82,0.015,52,107,0.001,51,24,0.016,31,5,0.001,-13,-43,0.003,-16,50,0.006,55,12,0.014,32,-115,0.011,31,118,0.185,46,4,0.013,42,-121,0.002,18,-15,0.011,-6,123,0.010,66,16,0.000,-44,-74,0.000,42,26,0.027,18,36,0.001,-1,-74,0.000];
+
+
+
+				var txt_barra = new THREE.TextureLoader().load( "./grad.png" );
+				
+
+//draw graph v
+
+	function getxyz(lat,long)
+	{
+		var point = new THREE.Vector3();
+			    var phi = (90 - lat) * Math.PI / 180;
+			    var theta = (180 - lng) * Math.PI / 180;
+
+			    point.x = 10 * Math.sin(phi) * Math.cos(theta);
+			    point.y = 10 * Math.cos(phi);
+			    point.z = 10 * Math.sin(phi) * Math.sin(theta);
+		return point;
+	}
+
+	function drawgraph()
+	{
+		//crate poligon & add to group
+			var geo_box = new THREE.BoxGeometry( 0.261, 0.261, 0.261, 1 );
+
+			
+				//lat to long
+				
+				
+			//	var cyl = new THREE.CylinderGeometry( 0.361, 0.361, 0.361, 5 );
+				var mat = new THREE.MeshBasicMaterial( {color: 0xff0000 ,wireframe:true} );
+
+
+			    var box = new THREE.Mesh( geo_box,mat); 
+			    return box;
+			  	
+			  	
+				
+	}
+
+	var vl = { x:0 , y:1 ,s:0};
+var tdata;
+var groupbox = new THREE.Group();
+
+var td;
+var boxes = [];
+var s;
+
+ 	for ( var x = 0 ; x < v.length ; x+=3)
+ 	{
+ 		s = x;
+
+ 		var lat = v[x];
+ 		var lng = v[x+1];
+ 		var m = v[x+2];
+
+ 		
+ 		var geo_box = new THREE.BoxGeometry( 0.0861, 0.0861, 0.0861, 1 );
+
+			
+				//lat to long
+				
+				
+			//	var cyl = new THREE.CylinderGeometry( 0.361, 0.361, 0.361, 5 );
+		var mat = new THREE.MeshBasicMaterial( {color: 0x34c642 , opacity:0.6,transparent:true,alphaTest:0.2} );
+
+
+	    var box = new THREE.Mesh( geo_box,mat); 
+ 		var point = getxyz(lat,lng);
+ 		point.normalize();
+ 		var mitad = (0.001+m*10)/2;
+ 		point.multiplyScalar(10 + mitad );
+ 		box.position.set(point.x,point.y,point.z);
+		boxes.push(box);
+
+		point.multiplyScalar( Math.random() * 0.09 + 1 );
+
+		box.lookAt(point);
+		box.updateMatrix();
+		box.scale.set(1,1,0.001+m*100);
+		group.add(box);
+
+		/*
+		var nt = new TWEEN.Tween(vl)
+			.to({x:2000,y:m,s:10},2000)
+			.onUpdate(function(vl){
+				
+				box.scale.set(1,1,vl.x);
+			});
+	 	*/
+		
+ 	}
+
+			
+			var camera_svg;
+				var render_svg;
+				var scene_svg;
+
+			init();
+			//initSVG();
+			//animate();
+			animate();
+
+
+
+
+			
+			function init() {
+
+					var config = {
+						type: 'pie',
+						data: {
+							datasets: [{
+								data: [
+									8,
+									74,
+									18,
+								],
+								borderWidth: 4, 
+								borderColor:[
+									'rgba(255,255,255,0.1)',
+									'rgba(255,255,255,0.1)',
+									'rgba(255,255,255,0.1		)',
+									
+
+
+								],
+								backgroundColor: [
+								'rgba(113, 215, 123 , 1)',
+									'rgba(67, 202, 85 , 1)',
+									'rgba(93, 242, 115 , 1)',
+									
+								],
+								label: 'Dataset 1'
+							}],
+							labels: [
+								'Red',
+								'Orange',
+								'Yellow'
+								
+							]
+						},
+						options: {
+							responsive: true,
+							 animation: {
+					            duration : 4000,
+					            easing : 'easeInCirc'
+					            }
+					        }
+						
+					};
+				
+				var ctx = document.getElementById('chart-area').getContext('2d');
+				window.myPie = new Chart(ctx, config);
+
+
+
+				camera = new THREE.CinematicCamera( 60, window.innerWidth / window.innerHeight, 0.01, 10000 );
+				camera.setLens( 50 );
+				camera.position.set( 1, 9, 123 );
+				camera.zoom = 2;
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0xf0f3f5);
+
+				var texture = new THREE.TextureLoader().load( "./back.jpg" );
+				var loaderc = new THREE.CubeTextureLoader();
+				loaderc.setPath( './' );
+
+				//texture.wrapS = THREE.RepeatWrapping;
+				//texture.wrapT = THREE.RepeatWrapping;
+				//texture.repeat.set( 4, 4 )
+				var textureCube = loaderc.load( [
+					'px.jpg', 'nx.jpg',
+					'py.jpg', 'ny.jpg',
+					'pz.jpg', 'nz.jpg'
+				] );
+				
+
+				//scene.background = textureCube;
+				
+			//	scene.background = texture;
+
+
+				scene.add( new THREE.AmbientLight( 0xffffff, 0.3 ) );
+
+				scene.fog = new THREE.FogExp2( 0x34c642, 0.0095 );
+
+				var light = new THREE.DirectionalLight( 0xfffff0, 0.35 );
+				light.position.set( 1, 1, 1 ).normalize();
+				scene.add( light );
+
+				var geometry = new THREE.SphereBufferGeometry( 10, 64, 64 );
+
+				var nucleo = new THREE.SphereBufferGeometry(9.82,32,32);
+				var geoatm = new THREE.SphereBufferGeometry(10.82,32,32);
+
+
+
+				var mapBump = new THREE.TextureLoader().load( "./bump.jpg" );
+				var mapNormal = new THREE.TextureLoader().load( "./normal.png" );
+				var mapColor = new THREE.TextureLoader().load( "./color.png" );
+				var mapAlpha = new THREE.TextureLoader().load("./perlin2.png");	
+				var mapatm = new THREE.TextureLoader().load("./atm.jpg");	 
+				var mapNucleo = new THREE.TextureLoader().load("./atm.jpg");
+
+
+        var material = new THREE.MeshPhongMaterial( {
+          map:mapColor,	
+          color: 0xf6f3f9,
+          specular: 0x222292,
+          shininess: 25,
+       	  side: THREE.DoubleSide,
+          transparent:true,
+          alphaTest:0.2
+
+        } );
+
+        var matnucleo = new THREE.MeshPhongMaterial({
+        	color:0xf6f3f9,
+        	transparent:true,
+        	opacity:0.8
+
+        });
+
+
+        var matatmos = new THREE.MeshPhongMaterial({
+        	color:0xfa9299,
+        	map:mapatm,
+        	transparent:true,
+        	opacity:0.2,
+        	alphaTest:0.4
+
+        });
+  
+  
+  		atm = new THREE.Mesh(nucleo,matnucleo);
+
+  		group.add(atm);
+
+		object = new THREE.Mesh( geometry,material);
+		object.rotation.y = Math.PI;
+		//scene.add( object );
+		var atmos = new THREE.Mesh(geoatm,matatmos);
+		group.add(atmos);
+
+		group.add( object );
+				group.rotation.y = 80.3;
+				group.rotation.x -= 0.6;
+				camera.position.x = cx;
+				camera.position.y = cy;
+				camera.position.z = cz;
+
+
+				//DATA
+
+//draw graph
+
+			var proxies = [40.2662,-5.0862,1,13.7877,100.5070,1,-6.1744,106.8290,1,
+							46.0000,15.0000,1,
+							41.3891,2.1611,1,
+							14.0499,101.369,1,
+							28.7449,53.8033,1,
+							57.1333,65.6333,1,
+							-8.8333,13.2333,1,
+							52.3710,4.9041,1,
+							49.4921,17.1338,1,
+							59.3247,18.0560,1,
+							48.8601,2.3507,1,
+							50.2649,28.6767,1,
+							40.8043,-74.0121,1];
+
+			var px =  [40,-5,1,13,100,1,-6,106,1,
+							46,15,1,
+							41,2,1,
+							14,101,1,
+							28,53,1,
+							57,65,1,
+							-8,13,1,
+							52,4,1,
+							49,17,1,
+							59,18,1,
+							48,2,1,
+							50,28,1,
+							40,-74	,1];
+
+
+	
+
+					var l = { l0 : 0 , l1 : 1 };
+			var p = new THREE.Vector3(0,0,0);
+			var point2 = new THREE.Vector3(0,0,0);
+			var point1 = new THREE.Vector3(0,0,0);
+
+
+			var geos;
+			var splineObject;
+			
+			var pnts = [];
+			var step=0;
+
+				var material = new THREE.LineBasicMaterial( { color : 0xff0ff0 } );
+
+
+
+
+			for ( var stp = 0; stp < px.length; stp+=3)
+				{
+					//stp +=3 ;
+
+				lat = v[stp];
+				lng = v[stp+1];
+			//	mag = v[stp+2];
+				//console.log(mag);
+				
+
+				var r = { x0 : 0, y0: 0 , z0: 0.1};  
+				var d = { x:1,y:9,z:14};			
+
+
+				//lat to long
+				var point = {x:0,y:0,z:0};
+			    var phi = (90 - lat) * Math.PI / 180;
+			    var theta = (180 - lng) * Math.PI / 180;
+
+			    point.x = 10 * Math.sin(phi) * Math.cos(theta);
+			    point.y = 10 * Math.cos(phi);
+			    point.z = 10 * Math.sin(phi) * Math.sin(theta);
+	
+
+				var cyl = new THREE.CylinderGeometry( 0.1361, 0.1361, 0.1361, 5 );
+				var mat = new THREE.MeshBasicMaterial( {color: 0xffff00 ,wireframe:true} );
+
+
+			    var lgeom = new THREE.Mesh( cyl,mat); 
+			  	
+			  	lgeom.position.set(point.x,point.y,point.z);
+				
+				//lgeom.lookAt(theta*phi,0,theta);
+				//lgeom.updateMatrix();
+
+				group.add(lgeom);
+	
+				}
+				
+			  	//scene.add(lgeom);
+
+
+			  	scene.add(group);
+
+				//raycaster = new THREE.Raycaster();
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+
+				stats = new Stats();
+				//document.body.appendChild( stats.dom );
+
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+				effectController = {
+
+					rx : 0,
+					ry : 0,
+					rz : 0,
+					camerax : 1,
+					cameray : 6,
+					cameraz : 14,
+					focalLength: 15,
+					// jsDepthCalculation: true,
+					// shaderFocus: false,
+					//
+					fstop: 2.8,
+					// maxblur: 1.0,
+					//
+					showFocus: false,
+					focalDepth: 30,
+					// manualdof: false,
+					// vignetting: false,
+					// depthblur: false,
+					//
+					// threshold: 0.5,
+					// gain: 2.0,
+					// bias: 0.5,
+					// fringe: 0.7,
+					//
+					// focalLength: 35,
+					// noise: true,
+					// pentagon: false,
+					//
+					// dithering: 0.0001
+
+				};
+
+				var updateCam = function ( ) {
+
+					cx = effectController.camerax;
+					cy = effectController.cameray;
+					cz = effectController.cameraz;
+				} 
+
+				var matChanger = function ( ) {
+
+					for ( var e in effectController ) {
+
+						if ( e in camera.postprocessing.bokeh_uniforms ) {
+
+							camera.postprocessing.bokeh_uniforms[ e ].value = effectController[ e ];
+
+						}
+
+					}
+
+					camera.postprocessing.bokeh_uniforms[ 'znear' ].value = camera.near;
+					camera.postprocessing.bokeh_uniforms[ 'zfar' ].value = camera.far;
+					camera.setLens( effectController.focalLength, camera.frameHeight, effectController.fstop, camera.coc );
+					effectController[ 'focalDepth' ] = camera.postprocessing.bokeh_uniforms[ 'focalDepth' ].value;
+
+				};
+
+				//
+/*
+				var gui = new dat.GUI();
+
+ 				gui.add( effectController, 'rx' ,-100,100, 1).onChange(updateCam);
+				gui.add( effectController, 'ry' ,-100,100, 1).onChange(updateCam);
+				gui.add( effectController, 'rz' ,-100,100, 1).onChange(updateCam);
+
+		        gui.add( effectController, 'camerax' ,-100,100, 1).onChange(updateCam);
+				gui.add( effectController, 'cameray' ,-100,100, 1).onChange(updateCam);
+				gui.add( effectController, 'cameraz' ,-1000,1000, 1).onChange(updateCam);
+
+				gui.add( effectController, 'focalLength', 1, 135, 0.01 ).onChange( matChanger );
+				gui.add( effectController, 'fstop', 1.8, 22, 0.01 ).onChange( matChanger );
+				gui.add( effectController, 'focalDepth', 0.1, 100, 0.001 ).onChange( matChanger );
+				gui.add( effectController, 'showFocus', true ).onChange( matChanger );
+
+				updateCam();	
+*/				matChanger();
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+				//animaciones.start()
+				anim01.start();
+				anim00.start();
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function onDocumentMouseMove( event ) {
+
+				event.preventDefault();
+
+				mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+				mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			}
+
+		
+
+
+			function animate() {
+
+				requestAnimationFrame( animate, renderer.domElement );
+
+				render();
+				stats.update();
+
+			}
+
+
+			function render() {
+
+				 TWEEN.update();
+				theta += 0.001;
+				//camera.position.z = cz;
+				object.scale.set(cx, cx,cx);
+				//camera.position.x = radius * Math.sin( THREE.Math.degToRad( theta ) );
+				//camera.position.y = radius * Math.sin( THREE.Math.degToRad( theta ) );
+				//camera.position.z = radius * Math.cos( THREE.Math.degToRad( theta ) );
+				
+				//camera.lookAt( scene.position );
+
+
+				if ( rotation ) {group.rotation.y += 0.01}
+				camera.updateMatrixWorld();
+
+					scene.overrideMaterial = null;
+
+					renderer.clear();
+					renderer.render( scene, camera );
+
+		
+
+			}
+
+		</script>
+
+	</body>
+</html>

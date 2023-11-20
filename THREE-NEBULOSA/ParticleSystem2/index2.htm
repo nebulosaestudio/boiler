@@ -1,0 +1,117 @@
+
+<!DOCTYPE HTML>
+<html lang="en">
+	<head>
+		<title>particulas</title>
+		<meta charset="utf-8">
+	</head>
+
+
+		<style type="text/css">
+			body {
+				background-color: #000000;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			.particula{width:10px;height:10px;display:block;background:#239a2f;position:absolute;}
+			.fuerza{width:23px;height:23px;display:block;background:#9a1444;position:absolute;}
+			#warp{background:#fafafa;}
+		</style>
+
+
+		<body onload="init();">
+
+			<script type="text/javascript" src="Vector2.js"></script>
+			<script type="text/javascript" src="Particula.js"></script>
+			<script type="text/javascript" src="Fuerza.js"></script>
+			<script type="text/javascript" src="PhysicsParticle.js"></script>
+
+			<script type="text/javascript">
+
+				var SCREEN_WIDTH = window.innerWidth,
+				SCREEN_HEIGHT = window.innerHeight,
+				particles = [],
+				fuerzas = [],
+				MAX_PARTICLES = 1200;
+
+				var id = 0;
+				var ps;
+
+				var p0x = SCREEN_WIDTH / 2 ;
+				var p0y = SCREEN_HEIGHT / 2 ;
+
+
+				function init()
+				{
+
+					var warp_style = document.getElementById("warp");
+					warp.style.width = SCREEN_WIDTH + "px";
+					warp.style.height = SCREEN_HEIGHT + "px";
+					//console.log("SCREEN"+warp.style)
+
+					//crearParticulas();
+					//crearFuerzas();
+
+					crearSistemaParticulas();
+					setInterval(loop, 100);
+				}
+		
+				function crearParticulas()
+				{
+					if ( id < MAX_PARTICLES )
+					{	
+					var par = new Particle(p0x,p0y);
+
+					id++;									
+					setTimeout(populate,200);
+					}
+				}
+
+				function populate()
+		 		{
+					if ( id < ps.MAX_PARTICLES )
+					{	
+					ps.emit(id);
+					id++;									
+					setTimeout(populate,200);
+					}else{
+					}
+				}
+
+				function loop()
+				{
+
+					// ps.compararParticulas();
+					// ps.compararFuerzas();
+			
+					ps.update();
+
+				}
+				
+				function crearFuerzas()
+				{
+					var fuerza = new Fuerza(800,300);
+					fuerza.render("warp");
+					fuerzas.push(fuerza);
+				}
+
+				function crearParticulas()
+				{
+					// fuerza emisor
+					
+				//	setTimeout(next,1000);
+				}
+
+				function next()
+				{
+
+					crearParticulas();
+				}
+
+			</script>
+
+			<div id="warp">
+			</div>
+		</body>
+	</html>

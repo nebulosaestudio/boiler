@@ -1,0 +1,194 @@
+<!DOCTYPE HTML>
+<!--
+	
+	@cha-desing | Copyright (CC BY-NC 4.0) 
+	
+-->
+<html>
+	<head>
+		<title> web typography - by cha </title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="./css/style.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<style type="text/css">
+		
+		@font-face{
+  font-family:'coper';
+    src:url('./typo/CooperHewitt-Medium.otf');
+}
+@font-face{
+  font-family:'sans';
+    src:url('./typo/PublicSans-Regular.otf');
+}
+@font-face{
+  font-family:'ostrich';
+    src:url('./typo/OstrichSansRounded-Medium.otf');
+}
+@font-face{
+  font-family:'neon';
+    src:url('./typo/OstrichSansInline-Regular.otf');
+}
+.neon{
+	font-family: neon;
+	font-size  : 8em;
+	stroke     :  rgb(221, 30, 195);
+	fill       : rgba(80, 5, 49,0.4);
+
+}
+.whiteneon{
+	font-family: neon;
+	font-size  : 8em;
+	font-weight: lighter;
+	stroke:none;
+	color     :  rgba(221, 230, 195);
+
+}
+.ostrich{
+	font-family: ostrich;
+	font-size  : 8em;
+	stroke     : #000;
+	fill       : #fff;
+
+}
+.svg-filter{
+	-webkit-filter: url("#filter");
+  filter: url("#filter");
+}
+.svg-filter2{
+	-webkit-filter: url("#filter2");
+  filter: url("#filter2");
+}
+#link:hover , #link:active{
+  -webkit-filter: url(#filter);
+  filter: url(#filter);
+  opacity: 1;
+  transition: filter 2s;
+  -webkit-transition: filter 2s;
+}
+/* before visible == img */
+h2{
+	margin:0;padding:0;line-height:0;
+}
+.coper{
+	font-family: coper;
+	font-size  : 6em;
+	stroke     : #00ff00;
+	fill       : #0000ff;
+}
+#main{display:flex;width:100%;height:100%;position:absolute}
+	
+	
+	#svg-wrap{
+		position:absolute;
+		top:6em;
+		left:30px;
+		width:100%;
+		height:100%;
+		z-index:3;
+		display:flex;
+flex-direction: column;
+	}
+
+
+	#link{
+		display:flex;
+	}
+
+	h1.head{margin:0;padding:0;z-index:4;left:2vw;}
+	</style>
+
+
+</head>
+
+<body>
+	<h1 class="svg-filter head whiteneon" style="position:absolute;top:-14px;z-index:2"> cha design </h1>
+
+	<svg xmlns="http://www.w3.org/2000/svg" x="0" y="0" width="1000" style="position: absolute;
+	z-index: 3;left:2vw">	
+		<text   class=" neon" id="link" y="1em">cha Design</text>
+	</svg>
+	<h1 class="svg-filter head coper" style="font-size:2em;position:absolute;top:4.6em;color:#fff"> Highlight one lorem ipsum</h1>
+			
+	<svg xmlns="http://www.w3.org/2000/svg" x="20" y="6em" width="1000" height="600" id="svg-wrap">	
+			
+					
+					<text class="svg-filter2 coper" id="link" y="2em">
+					  	DIAADIA. Editorial. 
+					</text>
+					<text class="svg-filter2 coper" id="link" y="3em">
+						InI Producciones 
+					</text>
+					<text class="svg-filter2 coper" id="link" y="4em">
+						nebulosa estudio
+					</text>
+				
+			
+		
+			  <text x="10" y="490"
+			  class="svg-filter2" id="link">
+				
+				Cha design: UX / UI . 
+			  </text>
+			</svg>
+		
+			
+				<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="50">
+					<text x="100"  y="200" class="style">
+					  SVG text styling
+					</text>
+				  </svg>
+				  
+				<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="600" style="position:absolute;top:0;left:0;width:100%;height:100%">	
+				
+					<rect  width="100%" height="100%" fill="url('#svg-gradient')" filter="url(#noise)" />
+				  
+			</svg>
+				
+
+			</div> <!-- /main -->	
+
+
+</body>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" class="svg-filters">
+	<defs>
+	
+		<filter id="filter">
+			<feTurbulence type="fractalNoise" baseFrequency="0.026 0.039" numOctaves="3" result="warp"> 
+			<animate id="fractalnoiseAnimate" attributeName="baseFrequency" values="0.00,0.26;0.039" from="0" to="100" dur="10s" repeatCount="indefinite"></animate>
+			</feTurbulence>
+			<feDisplacementMap xChannelSelector="R" yChannelSelector="G" scale="1" in="SourceGraphic" in2="warpOffset" />
+			</filter>
+	  <filter id="filter2">
+		<feTurbulence type="fractalNoise" baseFrequency="0.026 0.039" numOctaves="1" result="warp"></feTurbulence>
+		<feDisplacementMap xChannelSelector="R" yChannelSelector="G" scale="9" in="SourceGraphic" in2="warpOffset" />
+	  </filter>
+	  <filter width="240%" height="240%" x="0%" y="0%" id="noise">
+		<feTurbulence type="turbulence" baseFrequency="0.0547184" id="turbulence" numOctaves="3" result="turbulence" seed="5">
+		  <animate id="noiseAnimate" attributeName="baseFrequency" values="0.00,0.26;0.020,0.039" from="0" to="100" dur="100s" repeatCount="indefinite"></animate>
+		</feTurbulence>
+		<feDisplacementMap in="SourceGraphic" in2="turbulence" scale="13" xChannelSelector="R" yChannelSelector="R"></feDisplacementMap>
+		</filter>
+		<linearGradient id="myGradient" x1="50%" y1="0%" x2="50%" y2="100%"  gradientTransform="rotate(90)">
+			<stop offset="5%"  stop-color="0000ff" />
+			<stop offset="95%" stop-color="00ff00" />
+		  </linearGradient>
+
+		  <linearGradient id="svg-gradient" x1="50%" y1="0%" x2="50%" y2="100%" > 
+            
+            <stop offset="0%" stop-color="#0000ff">
+                <animate attributeName="stop-color" values="#0000ff; #0000ff; #0000ff" dur="4s" repeatCount="indefinite"></animate>
+            </stop>
+
+            <stop offset="100%" stop-color="#00ff00">
+                <animate attributeName="stop-color" values="#0000ff; #00ff00; #0000ff" dur="4s" repeatCount="indefinite"></animate>
+            </stop>
+
+        </linearGradient> 
+	</defs>
+  </svg>
+<script>
+
+
+</script>
+</html>

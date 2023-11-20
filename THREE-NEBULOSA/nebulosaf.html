@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - lights - point lights</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				background-color: #000;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			#info {
+				position: absolute;
+				top: 0px; width: 100%;
+				color: #ffffff;
+				padding: 5px;
+				font-family: Monospace;
+				font-size: 13px;
+				text-align: center;
+			}
+
+			a {
+				color: #ff0080;
+				text-decoration: none;
+			}
+
+			a:hover {
+				color: #0080ff;
+			}
+		</style>
+	</head>
+	<body>
+
+		<div id="container"></div>
+		<div id="info">
+			<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - point lights WebGL demo
+		</div>
+
+		<script type="text/javascript" src="./ParticleSystem2/Vector2.js"></script>
+		<script type="text/javascript" src="./ParticleSystem2/Particula.js"></script>
+		<script type="text/javascript" src="./ParticleSystem2/Fuerza.js"></script>
+		<script type="text/javascript" src="./ParticleSystem2/PhysicsParticle.js"></script>
+	
+	
+
+		<script src="three.js"></script>
+
+		<script src="TrackballControls.js"></script>
+
+		<script src="WebGL.js"></script>
+		<script src="stats.min.js"></script>
+
+		<script type="text/javascript">
+
+		
+			//alert(4+5+"3");
+	
+				
+				var SCREEN_WIDTH = window.innerWidth,
+				SCREEN_HEIGHT = window.innerHeight,
+				particles = [],
+				fuerzas = [],
+				MAX_PARTICLES = 120;
+	
+				var id = 0;
+				var ps;
+	
+				var p0x = SCREEN_WIDTH / 2 ;
+				var p0y = SCREEN_HEIGHT / 2 ;
+	
+				var t;
+	
+				var id;
+			
+	
+
+			if ( WEBGL.isWebGLAvailable() === false ) {
+
+				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+
+			}
+
+			var camera, scene, renderer, controls;
+			var light1, light2, light3, light4, light5, light6;
+
+			var clock = new THREE.Clock();
+
+			var stats;
+
+			var objects = new THREE.Group();
+			var array = [];
+			var array2 = [];
+				var x0 = 10;
+				var y0 = 10;
+				var z0 = 10;
+			init();
+			animate();
+
+			function initMesh()
+			{
+				array = [];
+				// OBJECTS
+				
+				
+				//var objectGeometry = new THREE.TorusBufferGeometry( 1.5, 0.4, 8, 16 );
+				var objectGeometry = new THREE.BoxGeometry( 0.1, 0.1 , 0.1 );
+
+				//objectGeometry.attributes.position.needsUpdate = true;
+
+				objectGeometry.verticesNeedUpdate = true;
+				objectGeometry.elementsNeedUpdate = true;
+
+				var v = new THREE.Vector3();
+				var rad = Math.PI / 180;
+				var α = 0;
+				var β = 0;
+
+				var spriteMap = new THREE.TextureLoader().load( "part.png" );
+				var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
+				
+					/*
+					Y=R*Coseno(alfa)
+					X=R*Seno(alfa)*Coseno(beta)
+					Z=R*Seno(alfa)*Seno(beta) 
+					*/
+
+				for (var j = 0 ; j < 180 ; j ++){ 
+					α += rad;
+					for ( var i = 0; i < 180; i ++ ) {
+						β += rad;
+					//var mesh = new THREE.Mesh( objectGeometry, objectMaterial );
+					var sprite = new THREE.Sprite( spriteMaterial );
+					sprite.scale.set(0.164, 0.164, 0.2)
+					let x = x0 + Math.sin(α) * Math.cos(β) * 10  ;//*  Math.random() ;
+					let y = y0 + Math.cos(α) * 10 ;//*  Math.random() ;
+					let z = z0 + Math.sin(α) * Math.sin(β) * 10 ;// * i / 5000  * Math.sin(i) * Math.cos(i)  ;
+					v.set(x,y,z);
+					sprite.position.x = x;
+					sprite.position.y = y;
+					sprite.position.z = z;
+
+					sprite.matrixAutoUpdate = true;
+					sprite.updateMatrix();
+
+					array.push(sprite);
+					scene.add(sprite);
+					}
+				}
+				
+			}
+			function init() {
+
+				var container = document.getElementById( 'container' );
+
+				// CAMERA
+
+				camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 300 );
+				camera.position.set( 0, 15, 150 );
+				camera.lookAt( 0, 0, 0 );
+
+				// SCENE
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0x040306 );
+				//scene.fog = new THREE.Fog( 0x040306, 10, 300 );
+
+				// CONTROLS
+
+				controls = new THREE.TrackballControls( camera );
+
+				controls.rotateSpeed = 1.0;
+				controls.zoomSpeed = 1.2;
+				controls.panSpeed = 0.8;
+
+				controls.noZoom = false;
+				controls.noPan = false;
+
+				controls.staticMoving = false;
+				controls.dynamicDampingFactor = 0.15;
+
+				controls.keys = [ 65, 83, 68 ];
+
+				// TEXTURES
+
+				var textureLoader = new THREE.TextureLoader();
+
+				var texture = textureLoader.load( "textures/disturb.jpg" );
+				texture.repeat.set( 20, 10 );
+				texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+				texture.format = THREE.RGBFormat;
+
+				// MATERIALS
+
+				var groundMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff, map: texture } );
+				var objectMaterial = new THREE.MeshStandardMaterial( { color: 0xffffff, roughness: 0.5, metalness: 1.0 , transparent : true , opacity : 1 } );
+
+				// GROUND
+
+				var mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 800, 400, 2, 2 ), groundMaterial );
+				mesh.position.y = - 5;
+				mesh.position.z = -30;
+				//mesh.rotation.x = - Math.PI / 2;
+				scene.add( mesh );
+
+				// OBJECTS
+				
+
+				//var objectGeometry = new THREE.TorusBufferGeometry( 1.5, 0.4, 8, 16 );
+				var objectGeometry = new THREE.BoxGeometry( 0.1, 0.1 , 0.1 );
+
+				//objectGeometry.attributes.position.needsUpdate = true;
+
+				objectGeometry.verticesNeedUpdate = true;
+				objectGeometry.elementsNeedUpdate = true;
+
+				var v = new THREE.Vector3();
+				var rad = Math.PI / 180;
+				var α = 0;
+				var β = 0;
+
+				var spriteMap = new THREE.TextureLoader().load( "part.png" );
+				var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
+				
+				/*
+				Y=R*Coseno(alfa)
+X=R*Seno(alfa)*Coseno(beta)
+Z=R*Seno(alfa)*Seno(beta) */
+				for (var j = 0 ; j < 180 ; j ++){ 
+					α += rad;
+				for ( var i = 0; i < 180; i ++ ) {
+						β += rad;
+					//var mesh = new THREE.Mesh( objectGeometry, objectMaterial );
+					var sprite = new THREE.Sprite( spriteMaterial );
+					sprite.scale.set(0.2, 0.2, 1)
+					let x = x0 + Math.sin(α) * Math.cos(β) * 10  ;//*  Math.random() ;
+					let y = y0 + Math.cos(α) * 10 ;//*  Math.random() ;
+					let z = z0 + Math.sin(α) * Math.sin(β) * 10 ;// * i / 5000  * Math.sin(i) * Math.cos(i)  ;
+					v.set(x,y,z);
+					sprite.position.x = x;
+					sprite.position.y = y;
+					sprite.position.z = z;
+
+					//sprite.rotation.y = 3.14 * ( 0.5 - Math.random() );
+					//sprite.rotation.x = 3.14 * ( 0.5 - Math.random() );
+
+					sprite.matrixAutoUpdate = true;
+					sprite.updateMatrix();
+
+
+				//	objects.add(sprite);
+					array.push(sprite);
+					scene.add( sprite );
+					//scene.add( mesh );
+				}
+				}
+				
+				// LIGHTS
+
+				var intensity = 2.5;
+				var distance = 100;
+				var decay = 2.0;
+
+				var c1 = 0xff0040, c2 = 0x0040ff, c3 = 0x80ff80, c4 = 0xffaa00, c5 = 0x00ffaa, c6 = 0xff1100;
+
+				var sphere = new THREE.SphereBufferGeometry( 0.85, 16, 8 );
+
+				light1 = new THREE.PointLight( c1, intensity, distance, decay );
+				light1.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: c1 } ) ) );
+				scene.add( light1 );
+
+				light2 = new THREE.PointLight( c2, intensity, distance, decay );
+				light2.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: c2 } ) ) );
+				scene.add( light2 );
+
+				light3 = new THREE.PointLight( c3, intensity, distance, decay );
+				light3.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: c3 } ) ) );
+				scene.add( light3 );
+
+				light4 = new THREE.PointLight( c4, intensity, distance, decay );
+				light4.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: c4 } ) ) );
+				scene.add( light4 );
+
+				light5 = new THREE.PointLight( c5, intensity, distance, decay );
+				light5.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: c5 } ) ) );
+				scene.add( light5 );
+
+				light6 = new THREE.PointLight( c6, intensity, distance, decay );
+				light6.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: c6 } ) ) );
+				scene.add( light6 );
+
+				var dlight = new THREE.DirectionalLight( 0xffffff, 0.05 );
+				dlight.position.set( 0.5, 1, 0 ).normalize();
+				scene.add( dlight );
+
+				var di = 10; 
+				var time = 1;
+				light1.position.x = 10;
+				light1.position.z = 20;
+				light1.position.y = 30;
+
+				light2.position.x = 20;
+				light2.position.z = 10;
+				light2.position.y = 20;
+
+				light3.position.x = 10;
+				light3.position.z = -20;
+
+				light4.position.x = 20;
+				light4.position.z = 40;
+
+				light5.position.x = 40;
+				light5.position.z = 10;
+
+				light6.position.x = -30;
+				light6.position.z = -10;
+				
+
+				// RENDERER
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+
+				renderer.gammaInput = true;
+				renderer.gammaOutput = true;
+
+				// STATS
+
+				stats = new Stats();
+				container.appendChild( stats.dom );
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				controls.handleResize();
+
+			}
+
+			//
+			var time;
+			var lag;
+
+			async function animate() {
+
+				time = Date.now() * 1e-10;
+				id = requestAnimationFrame(animate);
+				//id = setInterval(await render,100);
+				await render();
+				lag = Date.now() * 1e-10 - time; 
+				console.log(id,time,lag);
+				stats.update();
+			}
+
+			var p = 0.096;
+			var s = 1.0001;
+			var p = Math.PI/180;
+
+			function updateMesh(){
+
+				var time = Date.now() * 0.00025;
+				var d = 150;
+				//let obj = objects[1];
+				console.log("S",s);
+				s -= 0.0001;
+				p++;
+
+				for ( var i = 1 ; i < array.length ; i++)
+				{
+					var obj = array[i];
+				
+					var fx = x0 - obj.position.x;
+					var fy = y0 - obj.position.y;
+					var fz = z0 - obj.position.z;
+
+					//s = x0 - s - 0.001;
+					var x1 =  x0+fx*(1.0202-0.01);
+					var y1 =  y0+fy*(1.0202-0.01);
+					var z1 =  z0+fz*(1.0202-0.01) ;
+					z1 = z0;
+
+					obj.position.x  = x1 ; //0.1;
+					obj.position.y  = y1 ; //0.1;
+					obj.position.z  = z1 ;
+				}
+
+				
+			}
+			function render() {
+
+				controls.update( clock.getDelta() );
+
+				renderer.render( scene, camera );
+	
+				if ( id < 60 )
+				{
+					updateMesh();
+				}
+				if ( id == 20 )
+				{
+					//initMesh();
+				}	
+				
+			}
+
+		</script>
+	</body>
+</html>

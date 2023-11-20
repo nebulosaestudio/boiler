@@ -1,0 +1,404 @@
+<!doctype html>
+<html>
+  <head>
+    <title>WebGL - Simple triangle</title>
+  </head>
+  <style type="text/css">
+  body{background:rgba(10,40,30,1);}
+  #game-surface{position:absolute;width:100%;height:100%;z-index:0}
+    #svg{position:absolute;z-index:13}
+  @font-face{
+  font-family:'coper';
+    src:url('../typo/typo/CooperHewitt-Medium.otf');
+}
+@font-face{
+  font-family:'sans';
+    src:url('../typo/typo/PublicSans-Regular.otf');
+}
+@font-face{
+  font-family:'ostrich';
+    src:url('../typo/typo/OstrichSansRounded-Medium.otf');
+}
+@font-face{
+  font-family:'DoHyeon';
+    src:url('../typo/typo/DoHyeon-Regular.ttf') format('truetype');
+}
+@font-face{
+  font-family:'FjallaOne';
+    src:url('../typo/typo/FjallaOne-Regular.ttf') format('truetype');
+}
+.dohyein{font-family:"DoHyeon"}
+.FjallaOne{font-family:"FjallaOne";}
+
+.style{
+	font-family: ostrich;
+	font-size  : 124px;
+	stroke     : #000;
+	fill       : #fff;
+
+}
+.svg-filter{
+	-webkit-filter: url("#filter");
+  filter: url("#filter");
+}
+.svg-filter2{
+	-webkit-filter: url("#filter2");
+  filter: url("#filter2");
+}
+.svg-noise{
+	-webkit-filter: url("#noise");
+  filter: url("#noise");
+}
+
+  h1{
+    font-size:8em;
+  }
+  h2{
+    font-size:6em;
+  }
+  .just_stroke{-webkit-text-stroke: 3px black;color:rgba(0,0,0,0)}
+	.fill{color:rgba(65, 86, 117, 0.6);}
+  .stroke{-webkit-text-stroke: 1px white;}
+
+  /* 
+  animate svg via css
+  img.grey {
+  -webkit-filter: url(#gray-filter);
+  filter: url(#gray-filter);
+  opacity: 1;
+  transition: filter 2s;
+  -webkit-transition: filter 2s;
+}
+*/
+h2:hover{
+  -webkit-filter: url(#filter);
+  filter: url(#filter);
+  opacity: 1;
+  transition: filter 2s;
+  -webkit-transition: filter 2s;
+}
+#svga:hover{
+  -webkit-filter: url(#filter);
+  filter: url(#filter);
+  opacity: 1;
+  transition: filter 2s;
+  -webkit-transition: filter 2s;
+}
+  </style>
+  </head>
+    <body onload="">
+      <canvas id="game-surface" width="100%" height="100%" style="opacity:0.8;">
+        Your browser does not support HTML5
+      </canvas>
+      <br />
+      <div id="wrap" style="z-index:1;position:absolute;top:10vh;left:10vw">
+        
+        <svg  xmlns="http://www.w3.org/2000/svg" width="100vw" height="50vh" id="svga"> 
+					
+					<text x="100"  y="200"
+						filter="url(#filter2)"
+						  style="font-family: coper;
+								 font-size  : 124px;
+								 stroke     : #00ff00;
+								 fill       : #0000ff;">
+					  SVG text styling
+					</text>
+          </svg>
+          
+      <h2 class="FjallaOne fill stroke"> Yahlla yalla ramala</h2>
+      <h1 id="h1" class="svg-filter h1 dohyein stroke">juas</h1>
+      <h1 id="h11" class="svg-noise">juas</h1>
+      </div>  
+  
+  
+      
+      <svg xmlns="http://www.w3.org/2000/svg" version="1.1" class="svg-filters">
+        <defs>
+          <filter id="filter">
+          <feTurbulence type="fractalNoise" baseFrequency="0.26 0.039" numOctaves="1" result="warp"> 
+          <animate id="fractalnoiseAnimate" attributeName="baseFrequency" values="0.00,0.26;0.039" from="0" to="100" dur="10s" repeatCount="indefinite"></animate>
+          </feTurbulence>
+          <feDisplacementMap xChannelSelector="R" yChannelSelector="G" scale="1" in="SourceGraphic" in2="warpOffset" />
+          </filter>
+          <filter id="filter2">
+          <feTurbulence type="fractalNoise" baseFrequency="0.26 0.039" numOctaves="1" result="warp"></feTurbulence>
+          <feDisplacementMap xChannelSelector="R" yChannelSelector="G" scale="9" in="SourceGraphic" in2="warpOffset" />
+          </filter>
+
+          <filter width="100%" height="100%" x="0%" y="0%" id="noise">
+            <feTurbulence type="turbulence" baseFrequency="0.0547184" id="turbulence" numOctaves="1" result="turbulence" seed="5">
+              <animate id="noiseAnimate" attributeName="baseFrequency" values="0;.1;0,0" from="0" to="100" dur="10s" repeatCount="indefinite"></animate>
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="1" xChannelSelector="R" yChannelSelector="R"></feDisplacementMap>
+            </filter>
+        </defs>
+        </svg>
+    </body>
+    <script src="rita-web.js" ></script>
+  <script type="text/javascript" >
+    
+
+    var vertexShaderText = 
+[
+'precision mediump float;',
+'',
+'attribute vec2 vertPosition;',
+'attribute vec3 vertColor;',
+'varying vec3 fragColor;',
+'',
+'void main()',
+'{',
+'  fragColor = vertColor;',
+'  gl_Position = vec4(vertPosition, 0.0, 1);',
+'}'
+].join('\n');
+
+var fragmentShaderText =
+[
+'precision mediump float;',
+'',
+'varying vec3 fragColor;',
+'void main()',
+'{',
+'  gl_FragColor = vec4(fragColor, 0.6);',
+'}'
+].join('\n');
+
+  var R,G,B,a;
+  R = 0; G = 0 ; B = 0;
+
+   var R0,G0,B0,
+     R1,G1,B1,
+     R2,G2,B2,
+     R3,G3,B3;
+
+   var X0,Y0,
+     X1,Y1,
+     X2,Y2,
+     X3,Y3;
+
+
+
+        R0 = 0 ; R1 = 1 ; R2 = 0;
+        G0 = 0 ; G1 = 0 ; G2 = 0;
+        B0 = 0 ; B1 = 0 ; B2 = 0;
+        B3 = 0 ; B3 = 0 ; B3 = 0;
+
+
+ //var canvas2 = document.getElementById('game-surface');
+
+  var canvas = document.getElementById('game-surface');
+  var gl = canvas.getContext('webgl');
+
+  if (!gl) {
+    console.log('WebGL not supported, falling back on experimental-webgl');
+    gl = canvas.getContext('experimental-webgl');
+  }
+
+  if (!gl) {
+    alert('Your browser does not support WebGL');
+  }
+
+  gl.clearColor( R , G , B , 0);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  //
+  // Create shaders
+  // 
+  var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+  var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+
+  gl.shaderSource(vertexShader, vertexShaderText);
+  gl.shaderSource(fragmentShader, fragmentShaderText);
+
+  gl.compileShader(vertexShader);
+  if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+    console.error('ERROR compiling vertex shader!', gl.getShaderInfoLog(vertexShader));
+   
+  }
+
+  gl.compileShader(fragmentShader);
+  if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+    console.error('ERROR compiling fragment shader!', gl.getShaderInfoLog(fragmentShader));
+  
+  }
+
+  var program = gl.createProgram();
+  gl.attachShader(program, vertexShader);
+  gl.attachShader(program, fragmentShader);
+  gl.linkProgram(program);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    console.error('ERROR linking program!', gl.getProgramInfoLog(program));
+
+  }
+  gl.validateProgram(program);
+  if (!gl.getProgramParameter(program, gl.VALIDATE_STATUS)) {
+    console.error('ERROR validating program!', gl.getProgramInfoLog(program));
+  
+  }
+
+  //
+  // Create buffer
+  //
+  X0 = -1.0 ;  Y0 = -1.0 ;
+
+  X1 = 1.0 ;  Y1 = -1.0 ;
+
+  X2 = 1.0 ;  Y2 = 1.0 ;
+  
+  X3 = -1.0 ; Y3 = 1.0;
+
+
+  var triangleVertices = 
+  [ 
+
+      // X , Y,        R  , G  , B
+         X0 , Y0 ,      R0 , G0 , B0 ,
+         X1 , Y1 ,      R1 , G1 , B1 ,
+         X2 , Y2 ,      R2 , G2 , B2 ,
+         X3 , Y3 ,      R3 , G3 , B3 ,
+         X0 , Y0 ,      R0 , G1 , B2 
+        
+  ];
+
+  var triangleVertexBufferObject = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexBufferObject);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.DYNAMIC_DRAW);
+
+  var positionAttribLocation = gl.getAttribLocation(program, 'vertPosition');
+  var colorAttribLocation = gl.getAttribLocation(program, 'vertColor');
+  gl.vertexAttribPointer(
+    positionAttribLocation, // Attribute location
+    2, // Number of elements per attribute
+    gl.FLOAT, // Type of elements
+    gl.FALSE,
+    1 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
+    0 // Offset from the beginning of a single vertex to this attribute
+  );
+  gl.vertexAttribPointer(
+    colorAttribLocation, // Attribute location
+    3, // Number of elements per attribute
+    gl.FLOAT, // Type of elements
+    gl.FALSE,
+    1 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
+    3 * Float32Array.BYTES_PER_ELEMENT // Offset from the beginning of a single vertex to this attribute
+  );
+
+  gl.enableVertexAttribArray(positionAttribLocation);
+  gl.enableVertexAttribArray(colorAttribLocation);
+
+  //
+  // Main render loop
+  //
+  gl.useProgram(program);
+  gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+
+
+
+
+function updateColors()
+{
+
+   R0 = Math.sin(tick*0.01);  G0 = Math.cos(tick*0.01);   B0 = Math.cos(tick*0.01)*Math.sin(tick*0.01);
+   R1 = -1*Math.sin(tick*0.01);  G1 = -1*Math.cos(tick*0.01);   B1 = Math.sin(tick*0.1);
+   R2 = -1*Math.cos(tick*0.01);  G2 = Math.cos(tick*0.01);   B2 = Math.cos(tick*0.01);
+   R3 = Math.sin(tick*0.01);  G3 = Math.cos(tick*0.01);   B3 = Math.sin(tick*0.01);
+   triangleVertices = 
+  [ 
+
+       // X , Y,        R  , G  , B
+         X0 , Y0 ,      0 , 1 ,  R0 ,
+         X1 , Y1 ,      R2 , 0 , 1 ,
+         X2 , Y2 ,      1 , R3 , 0 ,
+         X3 , Y3 ,      0 , 0 , R1 ,
+         X0 , Y0 ,      R2 , 0 , 0
+        
+  ];
+}
+
+function render()
+{
+  
+  console.log("UPDATE",R0,R1,R2);
+
+  updateColors();
+  
+  tick++;
+
+ 
+  var triangleVertexBufferObject = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexBufferObject);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.DYNAMIC_DRAW);
+
+  var positionAttribLocation = gl.getAttribLocation(program, 'vertPosition');
+  var colorAttribLocation = gl.getAttribLocation(program, 'vertColor');
+  gl.vertexAttribPointer(
+    positionAttribLocation, // Attribute location
+    2, // Number of elements per attribute
+    gl.FLOAT, // Type of elements
+    gl.FALSE,
+    5 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
+    0 // Offset from the beginning of a single vertex to this attribute
+  );
+  gl.vertexAttribPointer(
+    colorAttribLocation, // Attribute location
+    3, // Number of elements per attribute
+    gl.FLOAT, // Type of elements
+    gl.FALSE,
+    1 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
+    5 * Float32Array.BYTES_PER_ELEMENT // Offset from the beginning of a single vertex to this attribute
+  );
+
+  gl.enableVertexAttribArray(positionAttribLocation);
+  gl.enableVertexAttribArray(colorAttribLocation);
+
+  //
+  // Main render loop
+  //
+  gl.useProgram(program);
+  gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+
+
+
+    //window.requestAnimationFrame(update);
+
+}
+
+var tick = Math.PI/180;
+var fps = 12;
+function update(timestamp){
+    setTimeout(function(){ 
+        render();
+        requestAnimationFrame(update)
+    }, 1000/fps)
+}
+ 
+//ssrequestAnimationFrame(update)
+
+
+var txt = "";
+	
+json = `{
+      "$start" : "$f2 | $f3 ", 
+      "$pre" : "a | ante | cabe | con | contra | de | desde | en | entre | para | por | si | segun | cuan",
+      "$art" : "al | la | las | lo | los | le | les | vos | su",
+      "$ver" : "abrir | obtener | conseguir | florecer | contar | guardar | ver | mirar | mira | estudia | lee",
+      "$adj" : "verde | azul | grandioso | espectacular | maravilla | pulido | abierto | reluciente",
+      "$nom" : "piedra | zapato | arbol | encina | pajaro | halcon | luminescencia | paco | tierra",
+      "$f1": "( $pre | $art ) $ver $adj $nom $f2 $f3",
+      "$f2": "$art $nom  $pre $ver $adj",
+      "$f3": "$pre $adj $nom"
+    }`;
+    
+    grammar = RiTa.grammar(json);
+    
+    let expanded = grammar.expand();
+    
+    var elem = document.getElementById("h1");
+    elem.innerHTML = expanded;
+
+update();
+  </script>
+
+
+</html>
